@@ -13,9 +13,8 @@ async function main() {
 
   // Create a simple sequential graph
   const graph = new Graph({
-    name: 'research-workflow',
-    defaultAgentId: agent.id
-  });
+    name: 'research-workflow'
+  }, agent);
 
   // Add tasks with dependencies
   const research = graph.addTaskNode({
@@ -29,7 +28,15 @@ async function main() {
 
   // Execute the workflow
   const results = await graph.run();
-  console.log('Research summary:', results.results[summary].response);
+  
+  // Parse the result and extract the response
+  if (results.success && results.results[summary]) {
+    const summaryResult = JSON.parse(results.results[summary] as string);
+    console.log('Research summary:', summaryResult.response);
+  } else {
+    console.log('Workflow failed or no summary available');
+    console.log('Errors:', results.errors);
+  }
 }
 
 main().catch(console.error);
